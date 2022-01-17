@@ -230,6 +230,12 @@ public class CourseRegistrationController extends SQLConnector {
                             int TIME2 = results.getInt("TIME2");
                             int TIME3 = results.getInt("TIME3");
                             String activity = results.getString("Activity");
+                            /*
+                            This adds the student current credit hour with the credit hour of the course
+                            the student wishes to register, if the credit hour after the addition exceeds
+                            22, then the student will not be able to add the course.
+                            */ 
+                            
                             if (creditHour + creditHours > 22) {
                                 System.out.println("You have reached maximum credit hour, please drop some module to add new modules.");
                                 viewRegisteredModule(matricNumber);
@@ -248,7 +254,11 @@ public class CourseRegistrationController extends SQLConnector {
             } else System.out.println("Module does not exist.");
         }
     }
-    // This method will check whether there is a crash among registered courses' time
+    /*check whether the course the student wishes to register clash with his timetable
+    return true if it clashes. The method uses the between function in sql to check 
+    whether the time of the selected course is between any of the time of student's
+    registered course.
+    */
     public static boolean isTimeCrash(String matricNumber, String week, int startTime, int endTime, int occurrence) {
         try {
             Connection con = getSQLConnection();
@@ -260,7 +270,10 @@ public class CourseRegistrationController extends SQLConnector {
         }
         return false;
     }
-    // Get a valid occurrence number from user and return back the occurrence number
+    /*check and return the occurrence the students wishes to add as an integer,
+    if the occurrence input is invalid/does not exist, return 0
+    if the occurrence clashes with the student's registered courses, return -1
+    */ 
     public static int selectOccurrence(String courseCode, String matricNumber) {
         try {
             Scanner sc = new Scanner(System.in);
@@ -288,6 +301,12 @@ public class CourseRegistrationController extends SQLConnector {
                     week.add(raw.getString("Week"));
                     counter++;
                 }
+                /*
+                if counter == 1, the course selected has only 1 type of activity
+                ie.(lecture || tutorial)
+                if counter == 2, the selected course has 2 types of activity
+                ie.(lecture && tutorial)
+                */    
                 if (counter == 1) crash = isTimeCrash(matricNumber, week.get(0), startTime.get(0), endTime.get(0), occurrence);
                 else if (counter == 2) {
                     isCrashLecture = isTimeCrash(matricNumber, week.get(0), startTime.get(0), endTime.get(0), occurrence);
