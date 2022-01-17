@@ -16,6 +16,8 @@ import java.util.Scanner;
 public class CourseRegistrationController extends SQLConnector {
     public static void main(String[] args) {
         System.out.println(isRegisteredCourse("u2102821", "abcd1234"));
+        System.out.println(returnMAVName("GLT1028"));
+        System.out.println(returnBand("u2102821"));
     }
     // This method run course registration page and accept correct instruction number from user   
     public static void runCourseRegistrationPage(String matricNumber) {
@@ -132,6 +134,8 @@ public class CourseRegistrationController extends SQLConnector {
                 if (answer.equals("Y")) {
                     PreparedStatement drop = con.prepareStatement("DELETE FROM "+matricNumber+" WHERE courseCode = \'"+courseCode+"\' ");
                     drop.executeUpdate();
+                    PreparedStatement drop2 = con.prepareStatement("DELETE FROM "+courseCode+" WHERE matricNumber = \'"+matricNumber+"\' ");
+                    drop2.executeUpdate();
                     System.out.println("Module successfully dropped.");
                 } else System.out.println("No changes have been made. Please try again.");
             } else System.out.println("Dropping module failed because module is not registered. Please try again.");
@@ -173,8 +177,27 @@ public class CourseRegistrationController extends SQLConnector {
             int startingTime = 0;
             int endTime = 0;
             String dayOfTheWeek = "";
+            String MAVName = returnMAVName(moduleCode);
             if (isCourseExist) {
                 try {
+                    int muetBand = returnBand(matricNumber);
+                    if(muetBand < 5 && MAVName.equalsIgnoreCase("l3")) {
+                        System.out.println("MUET BAND " + muetBand + " is not qualified to take " + moduleCode);
+                        System.out.print("Input any character to continue: ");
+                        sc.nextLine();
+                        viewRegisteredModule(matricNumber);
+                        runCourseRegistrationPage(matricNumber);
+                        System.exit(0);
+                    }
+                    else if(muetBand > 4 && MAVName.equalsIgnoreCase("l2")){
+                        System.out.println("MUET BAND " + muetBand + " is not required to take " + moduleCode);
+                        System.out.print("Input any character to continue: ");
+                        sc.nextLine();
+                        viewRegisteredModule(matricNumber);
+                        runCourseRegistrationPage(matricNumber);
+                        System.exit(0);
+                    }
+                    
                     PreparedStatement extract = con.prepareStatement("SELECT * FROM raw WHERE ModuleCode = \'"+moduleCode+"\'");
                     ResultSet module = extract.executeQuery();
                     System.out.printf("%-20s%-55s%-20s%-10s%-55s%-13s%-17s%-15s%n","ModuleCode", "ModuleName", "Occurrence","Activity", "Tutor", "Week", "Time", "Credit hours");
@@ -417,6 +440,28 @@ public class CourseRegistrationController extends SQLConnector {
         }
         return muetBand;
         
+    }
+    
+    public static String returnMAVName(String courseCode){
+        String MAV = "";
+        try{
+            if(CourseSearchingController.isCourseExist(courseCode)){
+            Connection con = getSQLConnection();
+            
+            PreparedStatement obtain = con.prepareStatement("SELECT * FROM raw WHERE ModuleCode = \'"+courseCode+"\'");
+            ResultSet MAVName = obtain.executeQuery();
+            
+            while(MAVName.next()){
+                MAV = MAVName.getString("MAVName");
+            }
+            }
+            else{
+                return null;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return MAV;
     }
     
    
