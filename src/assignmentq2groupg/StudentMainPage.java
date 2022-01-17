@@ -50,7 +50,7 @@ public class StudentMainPage {
                 break;
             case "2":
                 CourseRegistrationController.viewRegisteredModule(matricNumber);
-                CourseRegistrationController.runCourseRegistrationPage(matricNumber); // rmb notice after execute finish need runs which method
+                CourseRegistrationController.runCourseRegistrationPage(matricNumber);
                 break;
             case "3":
                 System.out.print("Input search: ");

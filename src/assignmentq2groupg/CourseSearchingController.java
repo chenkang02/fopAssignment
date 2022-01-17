@@ -65,17 +65,14 @@ public class CourseSearchingController extends SQLConnector {
     }
     // This method will check whether the course exists or not
     public static boolean isCourseExist(String userInput) {
-        ArrayList<String> array = new ArrayList<String>();
-        ArrayList<String> moduleCode = new ArrayList<String>();
         try {
             Connection con = getSQLConnection();
-            PreparedStatement search = con.prepareStatement("SELECT ModuleName, ModuleCode FROM raw WHERE ModuleCode = \'"+userInput+"\'");
+            PreparedStatement search = con.prepareStatement("SELECT * FROM raw WHERE ModuleCode = \'"+userInput+"\'");
             ResultSet results = search.executeQuery();
-            while (results.next()) {
-                array.add(results.getString("ModuleName"));
-                moduleCode.add(results.getString("ModuleCode"));
+            if(results.next()){
+                return true;
             }
-            if (moduleCode.contains(userInput)) return true;
+           
         } catch (Exception e) {
             e.printStackTrace();
         }

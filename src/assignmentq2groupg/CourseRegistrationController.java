@@ -62,6 +62,7 @@ public class CourseRegistrationController extends SQLConnector {
             ArrayList<String> moduleName = new ArrayList<String>();
             ArrayList<String> courseCode = new ArrayList<String>();
             ArrayList<Integer> enrollmentID = new ArrayList<Integer>();
+            ArrayList<String> activity = new ArrayList<String>();
             int creditHours = 0;
             PreparedStatement check = con.prepareStatement("Select creditHour FROM "+matricNumber+"");
             ResultSet sets = check.executeQuery();
@@ -70,10 +71,10 @@ public class CourseRegistrationController extends SQLConnector {
                 creditHours += hour;
             }
             System.out.print("---------------\nModule Registeration\nCurrent Credit Hour: "+creditHours+"\nMaximum credit hours : 22\nCurrent registered modules\n");
-            PreparedStatement registeredModule = con.prepareStatement("SELECT enrollmentID, courseCode, ModuleName, TIME1, TIME2, TIME3 FROM "+matricNumber+" ");
+            PreparedStatement registeredModule = con.prepareStatement("SELECT enrollmentID, courseCode, ModuleName, Activity, TIME1, TIME2, TIME3 FROM "+matricNumber+" ");
             ResultSet module = registeredModule.executeQuery();
             while (module.next()) {
-                String activity = module.getString("Activity");
+                activity.add(module.getString("Activity"));
                 int startTime = module.getInt("TIME1");
                 int TIME2 = module.getInt("TIME2");
                 enrollmentID.add(module.getInt("enrollmentID"));
@@ -81,7 +82,7 @@ public class CourseRegistrationController extends SQLConnector {
                 moduleName.add(module.getString("ModuleName"));
             }
             for (int i = 0; i < enrollmentID.size(); i++) {
-                System.out.print(enrollmentID.get(i)+". "+courseCode.get(i)+" "+moduleName.get(i));
+                System.out.print(enrollmentID.get(i)+". "+courseCode.get(i)+" "+moduleName.get(i)+" "+activity.get(i));
                 System.out.println();
             }
             System.out.println();
@@ -197,10 +198,19 @@ public class CourseRegistrationController extends SQLConnector {
                 createCourseTable(moduleCode);
                 int creditHour = 0;
                 if (occurrence == 0) {
+                    System.out.println("Occurrence does not exist.");
                     viewRegisteredModule(matricNumber);
                     runCourseRegistrationPage(matricNumber);
                     System.exit(0);
-                } else {
+                }
+                if(occurrence == -1){
+                    System.out.println("Selected occurrences crashes with your current timetable. Please try add the module again.");
+                    viewRegisteredModule(matricNumber);
+                    runCourseRegistrationPage(matricNumber);
+                    System.exit(0);
+                }
+                
+                    else {
                     try {
                         PreparedStatement select = con.prepareStatement("SELECT * FROM raw WHERE ModuleCode = \'"+moduleCode+"\' And Occurrence = \'"+occurrence+"\'  ");
                         ResultSet results = select.executeQuery();    
@@ -284,8 +294,7 @@ public class CourseRegistrationController extends SQLConnector {
                     isCrashTutorial = isTimeCrash(matricNumber, week.get(1), startTime.get(1), endTime.get(1), occurrence);                    
                 }
                 if (isCrashLecture || isCrashTutorial || crash) {
-                    System.out.println("Selected occurrences crashes with your current timetable. Please try add the module again.");
-                    return 0;
+                    return -1;
                 } else return occurrence;
             }
         } catch(Exception e) {

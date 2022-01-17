@@ -167,23 +167,33 @@ public class StaffMainPage extends SQLConnector {
                 && !occurrence.equals("7") && !occurrence.equals("8")
                 && !occurrence.equals("9") && !occurrence.equals("10")
                 && !occurrence.equals("11") && !occurrence.equals("12")
-                && !occurrence.equals("13") && !occurrence.equals("14")) {
+                && !occurrence.equals("13") && !occurrence.equals("14")
+                && !occurrence.equals("15") && !occurrence.equals("16")
+                && !occurrence.equals("17") && !occurrence.equals("18")
+                && !occurrence.equals("19") && !occurrence.equals("20")
+                && !occurrence.equals("21") && !occurrence.equals("22")
+                && !occurrence.equals("23") && !occurrence.equals("24")
+                && !occurrence.equals("25") && !occurrence.equals("26")
+                && !occurrence.equals("27") && !occurrence.equals("28")
+                && !occurrence.equals("29") && !occurrence.equals("30")
+                && !occurrence.equals("31") && !occurrence.equals("32")
+                && !occurrence.equals("33") && !occurrence.equals("34")) {
             System.out.print("Please inserts valid occurrence: ");
             occurrence = sc.nextLine();
         }
-        System.out.print("Are you sure you want to delete this module? Any changes cannot be undone. (Y/N): ");
+        System.out.print("Are you sure you want to delete this module? Any changes cannot be undone. Press Y to confirm: ");
         String answer = sc.nextLine();
         try {
             Connection con = getSQLConnection();
             if (answer.equalsIgnoreCase("y")) {
                 PreparedStatement delete = con.prepareStatement("DELETE FROM raw WHERE ModuleCode = \'"+moduleCode+"\' And occurrence = "+occurrence+""); 
                 delete.executeUpdate();
-            }    
+                System.out.println("Module is deleted successfully.");
+            }
+            
         } catch(Exception e) {
             System.out.println("Failed to delete module.");
-        } finally {
-            System.out.println("Module is deleted successfully.");
-        }
+        } 
     }
     // This method allow user to view all registered student for certain course
     public static void viewAllRegisteredStudent(){
@@ -212,7 +222,7 @@ public class StaffMainPage extends SQLConnector {
                 System.out.println();
             }
         } catch (Exception e) {
-           e.printStackTrace();
+            System.out.println("Selected module does not exist or selected occurrence does not exist.");
         }
     }
     // This method allow user to edit existing module
@@ -220,8 +230,9 @@ public class StaffMainPage extends SQLConnector {
         Scanner sc = new Scanner(System.in);
         System.out.print("Input the module code of the module you wishes to edit: ");
         String moduleCode = sc.nextLine();
+        CourseSearchingController.searchCourse(moduleCode);
         System.out.println("Please select the properties you wish to edit");
-        System.out.println("\n1.Module Name\n2.Properties of module\n");
+        System.out.println("\n1.Module Name\n2.Properties of module");
         String option = sc.nextLine();
         switch (option) {
             case "1": 
@@ -239,15 +250,16 @@ public class StaffMainPage extends SQLConnector {
     // This method allow user to rename a course
     public static void changeNameOfCourse(String moduleCode, String username) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Input the new name of the course: ");
-        String newName = sc.nextLine();
         try {
             Connection con = getSQLConnection();
             boolean exist = CourseSearchingController.isCourseExist(moduleCode);
-            if (exist) {           
+            if (exist) {
+                System.out.print("Input the new name of the course: ");
+                String newName = sc.nextLine();
                 PreparedStatement change = con.prepareStatement("UPDATE raw "
-                    + " SET ModuleName = \'"+newName+"\' WHERE ModuleCode = \'"+moduleCode+"\'");
+                    + " SET ModuleName = \'"+newName+"\' WHERE ModuleCode = \'"+moduleCode.toUpperCase()+"\'");
                 change.executeUpdate();
+                System.out.println("Name changed successfully.");
             } else {
                 System.out.println("Module does not exist. Please try again.");
                 runMainPage(username);
@@ -273,6 +285,7 @@ public class StaffMainPage extends SQLConnector {
             String statement = "UPDATE RAW SET "+properties+"= \'"+newProperties+"\' WHERE ModuleCode = \'"+moduleCode+"\' and occurrence = "+occurrence+"";
             PreparedStatement edit = con.prepareStatement(statement);
             edit.executeUpdate();
+            System.out.println("Properties updated successfully.");
         } catch(Exception e) {
             e.printStackTrace();
         }

@@ -12,5 +12,5 @@ public class Main {
     // Use main method to run entire program
     public static void main(String[] args) {
         LoginPage.runLoginPage();
-    }
+    }  
 }
