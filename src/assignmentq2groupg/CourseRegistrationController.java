@@ -14,6 +14,9 @@ import java.util.Scanner;
  * @author KWT
  */
 public class CourseRegistrationController extends SQLConnector {
+    public static void main(String[] args) {
+        System.out.println(isRegisteredCourse("u2102821", "abcd1234"));
+    }
     // This method run course registration page and accept correct instruction number from user   
     public static void runCourseRegistrationPage(String matricNumber) {
         try {
@@ -160,7 +163,10 @@ public class CourseRegistrationController extends SQLConnector {
     // This method allows user to register for a new valid module
     public static void add(Connection con, String moduleCode, String matricNumber) {
         Scanner sc = new Scanner(System.in);
-        if (isRegisteredCourse(matricNumber, moduleCode)) System.out.println("Course is already registered!");            
+        if (isRegisteredCourse(matricNumber, moduleCode)){
+            System.out.println("Course is already registered!");
+            
+        }            
         else if (isReachMaxCreditHour(matricNumber)) System.out.println("Credit hours have exceeded 22 hours, please drop some module to continue adding new modules.");        
         else {
             boolean isCourseExist = CourseSearchingController.isCourseExist(moduleCode);
@@ -195,27 +201,40 @@ public class CourseRegistrationController extends SQLConnector {
                     e.printStackTrace();
                 }
                 int occurrence = selectOccurrence(moduleCode, matricNumber);
-                createCourseTable(moduleCode);
+                
                 int creditHour = 0;
                 if (occurrence == 0) {
                     System.out.println("Occurrence does not exist.");
+                    System.out.print("Input any character to continue");
+                    sc.nextLine();
                     viewRegisteredModule(matricNumber);
                     runCourseRegistrationPage(matricNumber);
                     System.exit(0);
                 }
-                if(occurrence == -1){
+                else if(occurrence == -1){
                     System.out.println("Selected occurrences crashes with your current timetable. Please try add the module again.");
+                    System.out.print("Input any character to continue");
+                    sc.nextLine();
                     viewRegisteredModule(matricNumber);
+                    runCourseRegistrationPage(matricNumber);
+                    System.exit(0);
+                }
+                else if(occurrence == -2){
+                    System.out.println("The selected occurrence is already full, please select another occurrence");
+                    viewRegisteredModule(matricNumber);
+                    System.out.print("Input any character to continue");
+                    sc.nextLine();
                     runCourseRegistrationPage(matricNumber);
                     System.exit(0);
                 }
                 
-                    else {
+                else {
                     try {
                         PreparedStatement select = con.prepareStatement("SELECT * FROM raw WHERE ModuleCode = \'"+moduleCode+"\' And Occurrence = \'"+occurrence+"\'  ");
                         ResultSet results = select.executeQuery();    
                         PreparedStatement count = con.prepareStatement("SELECT * FROM "+matricNumber+"");
                         ResultSet set = count.executeQuery();
+                        createCourseTable(moduleCode);
                         while (set.next()) {
                             int temp = set.getInt("credithour");
                             creditHour += temp;
@@ -244,12 +263,14 @@ public class CourseRegistrationController extends SQLConnector {
                                     + "(courseCode, ModuleName, Lecturer, Occurence, creditHour, Week, Activity, TIME1, TIME2, TIME3) "
                                     + "VALUES (\'"+courseCode+"\', \'"+moduleName+"\', \'"+addSlash(lecturer)+"\', "+occurrence+", "+creditHours+", \'"+week+"\', \'"+activity+"\', "+TIME1+", "+TIME2+", "+TIME3+");");
                             insert.executeUpdate();
+                            
                         }
-                        addToTable(matricNumber, moduleCode, occurrence);
                         System.out.println("Course registered successfully.");
+                        addToTable(matricNumber, moduleCode, occurrence);
                     } catch(Exception e) {
                         e.printStackTrace();
                     }
+                    
                 } 
             } else System.out.println("Module does not exist.");
         }
@@ -275,10 +296,14 @@ public class CourseRegistrationController extends SQLConnector {
     if the occurrence clashes with the student's registered courses, return -1
     */ 
     public static int selectOccurrence(String courseCode, String matricNumber) {
+        int target = 0;
         try {
             Scanner sc = new Scanner(System.in);
-            System.out.print("Please enter your occurrence: ");
-            int occurrence = sc.nextInt();
+            int occurrence = 0;
+            do{
+                 System.out.print("Please enter your occurrence: ");
+                 occurrence = sc.nextInt();
+            }while(occurrence <= 0);
             boolean crash = false;
             boolean isCrashLecture = false;
             boolean isCrashTutorial = false;
@@ -288,7 +313,7 @@ public class CourseRegistrationController extends SQLConnector {
             Connection con = getSQLConnection();
             if (isOccurrenceExist(courseCode, occurrence)) {
                 //check if the selected occurrence crashes with the student's timetable
-                PreparedStatement fromRaw = con.prepareStatement("SELECT Week, TIME1, TIME2, TIME3 FROM raw WHERE ModuleCode = \'"+courseCode+"\' And Occurrence = \'"+occurrence+"\'");
+                PreparedStatement fromRaw = con.prepareStatement("SELECT Week, TIME1, TIME2, TIME3, Target FROM raw WHERE ModuleCode = \'"+courseCode+"\' And Occurrence = \'"+occurrence+"\'");
                 ResultSet raw = fromRaw.executeQuery();
                 int counter = 0;
                 while (raw.next()) {
@@ -296,11 +321,19 @@ public class CourseRegistrationController extends SQLConnector {
                     int time2 = raw.getInt("TIME2");
                     int time3 = raw.getInt("TIME3");     
                     startTime.add(time1);
+                    target = raw.getInt("Target");
                     if(time3 != 0) endTime.add(time3);
                     else endTime.add(time2);
                     week.add(raw.getString("Week"));
                     counter++;
                 }
+                /*return -2 if number of students registered for a particular course
+                exceeds the target number of students. */
+                int noOfStudents = StaffMainPage.returnNoOfStudents(courseCode, occurrence);
+                if(noOfStudents != 0 && noOfStudents >= target){
+                    return -2;
+                }
+                                
                 /*
                 if counter == 1, the course selected has only 1 type of activity
                 ie.(lecture || tutorial)
@@ -363,5 +396,28 @@ public class CourseRegistrationController extends SQLConnector {
             e.printStackTrace();
         }
         return true;
-    } 
+    }
+    
+    public static int returnBand(String matricNumber){
+        int muetBand = 0;
+        try{
+            Connection con = getSQLConnection();
+            
+            PreparedStatement obtain = con.prepareStatement("SELECT * FROM userdata WHERE matricNumber = \'"+matricNumber+"\'");
+            ResultSet band = obtain.executeQuery();
+            
+            while(band.next()){
+                muetBand = band.getInt("muetBand");
+            }
+            
+            
+
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        return muetBand;
+        
+    }
+    
+   
 }

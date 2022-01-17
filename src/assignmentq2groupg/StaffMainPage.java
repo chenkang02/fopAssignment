@@ -290,4 +290,21 @@ public class StaffMainPage extends SQLConnector {
             e.printStackTrace();
         }
     }
+    
+    public static int returnNoOfStudents(String courseCode, int occurrence){
+        int noOfStudents = 0;
+        
+        try{
+            Connection con = getSQLConnection();
+            PreparedStatement count = con.prepareStatement("SELECT * FROM "+courseCode+" WHERE occurrence = "+occurrence+"");
+            ResultSet students = count.executeQuery();
+            
+            while(students.next()){
+                noOfStudents += 1;
+            }
+        }catch(Exception e){
+            return 0;
+        }
+        return noOfStudents;
+}
 }
