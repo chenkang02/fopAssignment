@@ -194,6 +194,15 @@ public class UserController extends SQLConnector {
         Scanner sc = new Scanner(System.in);
         System.out.print("Please enter your password: ");
         String password1 = sc.nextLine();
+        boolean valid = isValidPassword(password1);
+        while(!valid){
+            System.out.println("Your password must contain 1 uppercase character, 1 lowercase character, 1 special character, 1 digit,\nand is between 8 to 20 characters long.");
+            System.out.print("Please reenter a valid password:");
+            password1 = sc.nextLine();
+            valid = isValidPassword(password1);
+        }
+        
+        
         System.out.print("Please re-enter your password: ");
         String password2 = sc.nextLine();
         if (!password1.equals(password2)) {
@@ -213,4 +222,24 @@ public class UserController extends SQLConnector {
             e.printStackTrace();
         }
     }
+     
+     public static boolean isValidPassword(String password){
+         String pattern = "^(?=.*[0-9])"
+                       + "(?=.*[a-z])(?=.*[A-Z])"
+                       + "(?=.*[@#$%^&+=])"
+                       + "(?=\\S+$).{8,20}$";
+         
+         Pattern regex = Pattern.compile(pattern);
+         
+         if(password == null){
+             return false;
+         }
+         Matcher m = regex.matcher(password);
+         if(m.matches()){
+             return true;
+         }
+         else{
+             return false;
+         }
+     }
 }
