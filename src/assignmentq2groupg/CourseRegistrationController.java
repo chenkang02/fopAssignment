@@ -267,6 +267,7 @@ public class CourseRegistrationController extends SQLConnector {
                             String moduleName = results.getString("ModuleName");
                             String lecturer = results.getString("Tutor");
                             int creditHours = results.getInt("credithour");
+                            creditHour += creditHours;
                             String week = results.getString("Week");
                             int TIME1 = results.getInt("TIME1");
                             int TIME2 = results.getInt("TIME2");
@@ -277,10 +278,13 @@ public class CourseRegistrationController extends SQLConnector {
                             the student wishes to register, if the credit hour after the addition exceeds
                             22, then the student will not be able to add the course.
                             */ 
-                            
-                            if (creditHour + creditHours > 22) {
+                            if (creditHour > 22) {
                                 System.out.println("You have reached maximum credit hour, please drop some module to add new modules.");
                                 viewRegisteredModule(matricNumber);
+                                System.out.print("Input any character to continue");
+                                sc.nextLine();
+                                runCourseRegistrationPage(matricNumber);
+                                System.exit(0); 
                             }
                             PreparedStatement insert = con.prepareStatement("INSERT INTO "+matricNumber
                                     + "(courseCode, ModuleName, Lecturer, Occurence, creditHour, Week, Activity, TIME1, TIME2, TIME3) "
