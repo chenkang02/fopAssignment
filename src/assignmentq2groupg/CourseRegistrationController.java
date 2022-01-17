@@ -335,7 +335,7 @@ public class CourseRegistrationController extends SQLConnector {
             ArrayList<String> week = new ArrayList<String>();
             Connection con = getSQLConnection();
             if (isOccurrenceExist(courseCode, occurrence)) {
-                //check if the selected occurrence crashes with the student's timetable
+                //check if the selected occurrence clashes with the student's timetable
                 PreparedStatement fromRaw = con.prepareStatement("SELECT Week, TIME1, TIME2, TIME3, Target FROM raw WHERE ModuleCode = \'"+courseCode+"\' And Occurrence = \'"+occurrence+"\'");
                 ResultSet raw = fromRaw.executeQuery();
                 int counter = 0;
@@ -362,6 +362,8 @@ public class CourseRegistrationController extends SQLConnector {
                 ie.(lecture || tutorial)
                 if counter == 2, the selected course has 2 types of activity
                 ie.(lecture && tutorial)
+                return -1 if any of the time clashes with the time of the courses 
+                in the student's timetable
                 */    
                 if (counter == 1) crash = isTimeCrash(matricNumber, week.get(0), startTime.get(0), endTime.get(0), occurrence);
                 else if (counter == 2) {
@@ -393,7 +395,7 @@ public class CourseRegistrationController extends SQLConnector {
         }
         return false;
     }
-    // Create a course table if it's not exists
+    // Create a course table if it does not exists
     public static void createCourseTable(String courseCode) {
         try {
             Connection con = getSQLConnection();
@@ -421,6 +423,7 @@ public class CourseRegistrationController extends SQLConnector {
         return true;
     }
     
+    //return the muetband of the student in int 
     public static int returnBand(String matricNumber){
         int muetBand = 0;
         try{
@@ -432,9 +435,6 @@ public class CourseRegistrationController extends SQLConnector {
             while(band.next()){
                 muetBand = band.getInt("muetBand");
             }
-            
-            
-
         }catch(Exception e){
             System.out.println(e);
         }
@@ -442,6 +442,7 @@ public class CourseRegistrationController extends SQLConnector {
         
     }
     
+    //return the mavName of a course int String 
     public static String returnMAVName(String courseCode){
         String MAV = "";
         try{

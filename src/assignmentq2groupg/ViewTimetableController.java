@@ -17,6 +17,11 @@ public class ViewTimetableController extends SQLConnector {
     // This method able to extract user's course code and time from database and display the user's timetable
     public static void viewTimetable(String matricNumber) {
         Scanner sc = new Scanner(System.in);
+        /*
+        create 2 arrays to store the location of the day and time as indexes in the array,
+        the maximum number of days is 5 and the maximum number of hours of classes per day is 13, therefore
+        the size of the array[i][]j where i = 5 and j = 13.
+        */
         int[][] time = new int[5][13];
         String[][] module = new String[5][13];
         System.out.println(matricNumber + "'s Timetable");
@@ -33,6 +38,7 @@ public class ViewTimetableController extends SQLConnector {
                 int time1 = results.getInt("TIME1");
                 int time2 = results.getInt("TIME2");
                 int time3 = results.getInt("TIME3");
+                //convert the day to its respective number in the week
                 switch (day) {
                     case "monday":
                         dayWeek = 0;
@@ -53,6 +59,10 @@ public class ViewTimetableController extends SQLConnector {
                         System.out.println("Invalid day detected in database.");
                         System.exit(0);
                 }
+                /*
+                if the time is equal to i, the location of the time is stored in the 
+                2d array with index time[dayWeek][i] 
+                */ 
                 for (int i = 8; i <= 20; i++) {
                     if (time1 == i) {
                         time[dayWeek][i - 8] = 1;
