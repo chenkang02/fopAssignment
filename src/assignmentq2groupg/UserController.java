@@ -16,18 +16,23 @@ import java.util.regex.*;
  * @author KWT
  */
 public class UserController extends SQLConnector {
+    public static void main(String[] args) {
+        System.out.println(isValidMail("u2102999@siswa.um.edu.my", "student"));
+        System.out.println(isStudentMailExist("u2102991@siswa.um.edu.my"));
+        System.out.println(isMatricNumExist("u2102821"));
+        System.out.println(isStaffMailExist("u2102821@um.edu.my"));
+    }
     // Check whether the user's um mail already exists in the database
     public static boolean isStaffMailExist(String umMail) {
         try {
             Connection con = getSQLConnection();
-            PreparedStatement search = con.prepareStatement("SELECT umMail FROM staffData");
+            PreparedStatement search = con.prepareStatement("SELECT * FROM staffData WHERE umMail = \'"+umMail+"\'");
             ResultSet result = search.executeQuery();
-            ArrayList<String> staffsUmMail = new ArrayList<String>();
-            while (result.next()) {
-                String mail = result.getString("umMail");
-                staffsUmMail.add(mail);
+            
+            if (result.next()) {
+                return true;
             }
-            if (staffsUmMail.contains(umMail)) return true;
+            
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -37,14 +42,12 @@ public class UserController extends SQLConnector {
     public static boolean isStudentMailExist(String siswaMail) {
         try {
             Connection con = getSQLConnection();
-            PreparedStatement search = con.prepareStatement("SELECT siswaMail FROM userdata");
+            PreparedStatement search = con.prepareStatement("SELECT * FROM userdata WHERE siswamail = \'"+siswaMail+"\'");
             ResultSet result = search.executeQuery();
-            ArrayList<String> studentsMail = new ArrayList<String>();
-            while (result.next()) {
-                String mail = result.getString("siswaMail");
-                studentsMail.add(mail);
+            
+            if (result.next()) {
+                return true;
             }
-            if (studentsMail.contains(siswaMail)) return true;
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -54,14 +57,12 @@ public class UserController extends SQLConnector {
     public static boolean isMatricNumExist(String matricNum) {
         try {
             Connection con = getSQLConnection();
-            PreparedStatement search = con.prepareStatement("SELECT matricNumber FROM userdata");
+            PreparedStatement search = con.prepareStatement("SELECT * FROM userdata WHERE matricNumber = \'"+matricNum+"\'");
             ResultSet result = search.executeQuery();
-            ArrayList<String> studentsMatricNum = new ArrayList<String>();
-            while (result.next()) {
-                String num = result.getString("matricNumber");
-                studentsMatricNum.add(num);
+            
+            if (result.next()) {
+                return true;
             }
-            if (studentsMatricNum.contains(matricNum)) return true;
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +112,7 @@ public class UserController extends SQLConnector {
             System.out.print("Please input your full name: ");
             String name = sc.nextLine().toUpperCase();
             System.out.print("Please enter your muet band: ");
-            String muetBand = sc.nextLine();
+            String muetBand = sc.nextLine().strip();
             while (!(muetBand.equals("1") || muetBand.equals("2") 
                     || muetBand.equals("3") || muetBand.equals("4") 
                     || muetBand.equals("5") || muetBand.equals("6"))) {
@@ -192,7 +193,7 @@ public class UserController extends SQLConnector {
     // Create and return the new password
     public static String createAccountPassword() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Please enter your password: ");
+        System.out.print("Your password must contain 1 uppercase character, 1 lowercase character, 1 special character, 1 digit,\nand is between 8 to 20 characters long. \nPlease enter your password:");
         String password1 = sc.nextLine();
         boolean valid = isValidPassword(password1);
         while(!valid){
