@@ -17,7 +17,7 @@ public class StaffMainPage extends SQLConnector {
     // This method prompts user to enter a instruction number
     public static void runMainPage(String username){
         Scanner sc = new Scanner(System.in); 
-        System.out.println("1.Modify module\n2.View all modules\n3.View registered student\n4.Log out\n-1. Quit");
+        System.out.println("1.Modify module\n2.View all modules\n3.View registered student\n4.Log out\n5.Change password\n-1. Quit");
         System.out.println();
         System.out.print("What do you want to do today? ");
         String instructionNum = sc.nextLine();
@@ -33,7 +33,8 @@ public class StaffMainPage extends SQLConnector {
                 || instructionNum.equals("1")
                 || instructionNum.equals("2")
                 || instructionNum.equals("3")
-                || instructionNum.equals("4")) {
+                || instructionNum.equals("4")
+                || instructionNum.equals("5")) {
             return true;
         }
         return false;
@@ -41,6 +42,7 @@ public class StaffMainPage extends SQLConnector {
     // The programme starts branching to respective area according to the instruction number entered 
     public static void carrySpecificInstruction(String instructionNum, String username) {
         Scanner sc = new Scanner(System.in);
+        while(true){
         switch (instructionNum) {
             case "1":
                 modifyModule(username);
@@ -54,13 +56,16 @@ public class StaffMainPage extends SQLConnector {
             case "4":
                 logout(username);
                 System.exit(0);
+            case "5":
+                LoginPage.resetPassword(username, "staff");
+                break;
             case "-1":
                 System.exit(0);
         }
         System.out.print("\nPress any character to return to main page: ");
         sc.nextLine();
         runMainPage(username);
-        System.exit(0);
+    }
     }
     // This method will do a confirmation for logout option
     public static void logout(String username) {

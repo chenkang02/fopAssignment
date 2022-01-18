@@ -19,6 +19,7 @@ public class StudentMainPage {
         System.out.println("3. Search for specified modules");
         System.out.println("4. View all modules");
         System.out.println("5. Logout");
+        System.out.println("6. Change password.");
         System.out.println("-1. Quit");
         System.out.println();
         System.out.print("What do you want to do today? ");
@@ -36,7 +37,8 @@ public class StudentMainPage {
                 || instructionNum.equals("2")
                 || instructionNum.equals("3")
                 || instructionNum.equals("4")
-                || instructionNum.equals("5")) {
+                || instructionNum.equals("5")
+                || instructionNum.equals("6")){
             return true;
         }
         return false;
@@ -44,6 +46,7 @@ public class StudentMainPage {
     // The programme starts branching to respective area according to the instruction number entered 
     public static void carrySpecificInstruction(String instructionNum, String matricNumber) {
         Scanner sc = new Scanner(System.in);
+        while(true){
         switch (instructionNum) {
             case "1":
                 ViewTimetableController.viewTimetable(matricNumber);
@@ -63,6 +66,9 @@ public class StudentMainPage {
             case "5":
                 logout(matricNumber);
                 System.exit(0);
+            case "6":
+                LoginPage.resetPassword(matricNumber, "student");
+                break;
             case "-1":
                 System.exit(0);
         }
@@ -70,6 +76,7 @@ public class StudentMainPage {
         sc.nextLine();
         runMainPage(matricNumber);
         System.exit(0);
+        }
     }
     // This method will do a confirmation for logout option
     public static void logout(String matricNumber) {

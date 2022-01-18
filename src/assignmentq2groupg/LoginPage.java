@@ -5,6 +5,7 @@
 package assignmentq2groupg;
 
 import static assignmentq2groupg.SQLConnector.getSQLConnection;
+import static assignmentq2groupg.UserController.isValidPassword;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +18,8 @@ import java.util.Scanner;
 
 public class LoginPage {
     // This method run login page and accept correct instruction number from user
-    public static void runLoginPage() {  
+    public static void runLoginPage() {
+        
         Scanner sc = new Scanner(System.in);
         System.out.println("-----------------------------------------------------------------------------------------");
         System.out.println("|                    Welcome to Group G module registration platform                    |");
@@ -34,6 +36,7 @@ public class LoginPage {
         }
         carrySpecificInstruction(instructionNum);
     }
+    
     // This method is used to check whether the instruction entered is valid or not
     public static boolean isValidInstruction(String instructionNum) {
         if (instructionNum.equals("-1")
@@ -46,6 +49,8 @@ public class LoginPage {
     }
     // The programme starts branching to respective area according to the instruction number entered 
     public static void carrySpecificInstruction(String instructionNum) {
+        boolean mainSwitch = true;
+        while(mainSwitch){
         switch (instructionNum) {
             case "-1":
                 runLoginPage();
@@ -58,6 +63,7 @@ public class LoginPage {
             case "2":
                 createNewAccount();
                 break;
+        }
         }
     }
     // This method requires user to enter correct username or matric number
@@ -137,19 +143,26 @@ public class LoginPage {
         } else {
             System.out.println("Please reset your password, you have no more chances.");
             resetPassword(personalID, role);
-            System.exit(0);
+            runLoginPage();
         }
     }
     // This method can reset password
     public static void resetPassword(String matricNumber, String role) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Please enter your new password: ");
-        String password = sc.nextLine();
+        System.out.print("Your password must contain 1 uppercase character, 1 lowercase character, 1 special character, 1 digit,\nand is between 8 to 20 characters long. \nPlease enter your new password:");
+        String password1 = sc.nextLine();
+        boolean valid = isValidPassword(password1);
+        while(!valid){
+            System.out.println("Your password must contain 1 uppercase character, 1 lowercase character, 1 special character, 1 digit,\nand is between 8 to 20 characters long.");
+            System.out.print("Please reenter a valid password:");
+            password1 = sc.nextLine();
+            valid = isValidPassword(password1);
+        }
         System.out.print("Please reenter your new password: ");
         String password2= sc.nextLine();
         String oldPassword = "";
         String newPassword = "";
-        if(password.equals(password2)){
+        if(password1.equals(password2)){
             newPassword = password2;
             }
         
@@ -165,14 +178,11 @@ public class LoginPage {
             if(newPassword.equals(oldPassword)){
                 System.out.println("Sorry, new password cannot be old password");
                 System.out.println("Please try again.");
-                runLoginPage();
-                System.exit(0);
             }
             else{
                     PreparedStatement change = con.prepareStatement("UPDATE userdata SET password = \'"+newPassword+"\' WHERE matricNumber = \'"+matricNumber+"\'");
                     change.executeUpdate();
                     System.out.println("Password changed successfully.");
-                    runLoginPage();
                 }
             }catch(Exception e){
                 System.out.println(e);
@@ -189,13 +199,11 @@ public class LoginPage {
                 
                 if(newPassword.equals(oldPassword)){
                 System.out.println("Sorry, new password cannot be old password");
-                return;
                 }
                 else{
                     PreparedStatement change = con.prepareStatement("UPDATE staffData SET password = \'"+newPassword+"\' WHERE username = \'"+matricNumber+"\'");
                     change.executeUpdate();
                     System.out.println("Password successfully changed.");
-                    runLoginPage();
                 }
           
             }catch(Exception e){
