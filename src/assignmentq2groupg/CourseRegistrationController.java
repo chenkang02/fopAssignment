@@ -234,14 +234,14 @@ public class CourseRegistrationController extends SQLConnector {
                     runCourseRegistrationPage(matricNumber);
                     System.exit(0);
                 }
-                else if(occurrence == -1){
+                else if(occurrence == -1){  
                     System.out.println("Selected occurrences crashes with your current timetable. Please try add the module again.");
                     System.out.print("Input any character to continue");
                     sc.nextLine();
                     viewRegisteredModule(matricNumber);
                     runCourseRegistrationPage(matricNumber);
                     System.exit(0);
-                }
+                    }
                 else if(occurrence == -2){
                     System.out.println("The selected occurrence is already full, please select another occurrence");
                     viewRegisteredModule(matricNumber);
