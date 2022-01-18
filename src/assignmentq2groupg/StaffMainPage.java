@@ -292,7 +292,7 @@ public class StaffMainPage extends SQLConnector {
             edit.executeUpdate();
             System.out.println("Properties updated successfully.");
         } catch(Exception e) {
-            e.printStackTrace();
+            System.out.println("Invalid properties.");
         }
     }
     
